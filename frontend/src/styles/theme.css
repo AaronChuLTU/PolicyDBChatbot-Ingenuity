@@ -1,0 +1,57 @@
+/* theme.css — design tokens for the Policy DB Chatbot
+   Light (default) and dark themes. Dark theme applies when the <html> element
+   has data-theme="dark". Tokens keep the same names so nothing else changes. */
+
+:root {
+  --ink:        #0c2f52;   /* deep institutional blue — headers, primary text */
+  --ink-soft:   #3d5878;   /* secondary text */
+  --paper:      #f7f5ef;   /* warm off-white page background */
+  --surface:    #ffffff;   /* cards, input */
+  --border:     #e2ddd1;   /* hairline dividers */
+  --accent:     #0f7a63;   /* teal — actions, links, focus */
+  --accent-ink: #e4f3ee;   /* tint for accent backgrounds */
+  --warn-bg:    #fbf0d9;   /* disclaimer banner */
+  --warn-ink:   #6b4a12;   /* disclaimer text */
+  --mark-bg:    #0c2f52;   /* logo mark background */
+  --mark-fg:    #ffffff;   /* logo mark text */
+  --user-bg:    #0c2f52;   /* user message bubble */
+  --user-fg:    #ffffff;
+
+  --font-display: Georgia, 'Times New Roman', serif;
+  --font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --radius: 12px;
+  --maxw: 90%;
+  --maxw-cap: 1200px;
+}
+
+:root[data-theme="dark"] {
+  --ink:        #e9edf2;   /* light text on dark */
+  --ink-soft:   #9fb0c4;
+  --paper:      #10161d;   /* deep slate background */
+  --surface:    #1a2028;   /* cards, input */
+  --border:     #2c3540;
+  --accent:     #3fbfa0;   /* brighter teal for dark bg */
+  --accent-ink: #16302a;
+  --warn-bg:    #3a2f13;
+  --warn-ink:   #f0d69a;
+  --mark-bg:    #3fbfa0;
+  --mark-fg:    #10161d;
+  --user-bg:    #2f6df0;   /* readable blue bubble on dark */
+  --user-fg:    #ffffff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
