@@ -79,3 +79,67 @@ hasn't:
    entries against the original pages.
 3. Run `build_vector_db.py` — first run downloads the ~90MB embedding model,
    so make sure that machine has internet access.
+
+
+## Hybrid retrieval (Sprint 3) - Aaron
+
+`hybrid_search.py` — retrieval used by everything downstream. Three stages:
+
+1. **BM25 keyword search** (`BM25Index`) — literal term matching, catches
+   things like "section 4.2" or a policy name that vector search misses.
+2. **Reciprocal Rank Fusion** (`reciprocal_rank_fusion`) — merges the BM25
+   and vector rankings. Uses rank position only, never raw scores, because
+   a BM25 score of 8.4 and a cosine similarity of 0.51 aren't comparable.
+3. **Cross-encoder reranking** (`rerank`) — re-scores the merged candidates
+   by reading question and chunk together. This is the score to threshold
+   on for refusal/escalation, not cosine similarity.
+
+Tuning constants are at the top of the file: `VECTOR_CANDIDATES`,
+`BM25_CANDIDATES`, `RRF_K`, `RERANK_CANDIDATES`, `FINAL_TOP_K`.
+
+### Using it from other code
+
+```python
+from build_vector_db import connect
+from hybrid_search import HybridRetriever
+
+conn = connect()
+retriever = HybridRetriever(conn)          # loads models once, reuse it
+hits = retriever.search("your question")   # -> list of dicts, best first
+```
+
+Each hit has: `chunk_id`, `policy_title`, `section`, `source_url`, `text`,
+`rerank_score` (0–1), `found_by`.
+
+**For generation (Sprint 3):** treat `rerank_score < 0.5` on the top hit as
+"no relevant policy found" and return the escalation response from the
+agreed schema rather than generating an answer.
+
+### CLI
+
+```bash
+python hybrid_search.py "What are the rules on academic dress?"
+python hybrid_search.py --vector-only "..."   # Sprint 2 behaviour, for comparison
+python hybrid_search.py --no-rerank "..."     # fusion only
+```
+
+### Tests
+
+```bash
+python run_retrieval_tests.py
+```
+
+Runs 16 questions through both vector-only and hybrid, writes
+`docs/retrieval-test-results-sprint3.md`. Run this after any retrieval
+change — it doubles as a regression check.
+
+### Known issue
+
+The ivfflat index in `build_vector_db.py` uses `lists = 100` against a
+corpus of ~97 chunks, which caused some queries to return zero rows. Drop it
+until the corpus is substantially larger:
+
+```bash
+docker exec -it policydb-pg psql -U postgres -d policydb \
+  -c "DROP INDEX IF EXISTS policy_chunks_embedding_idx;"
+```
