@@ -1,6 +1,6 @@
 # Retrieval Test Results - Sprint 3 (PCOIS2-47)
 
-**Date run:** 2026-08-25  
+**Date run:** 2026-08-27  
 **Corpus:** policy_chunks (La Trobe policy documents)  
 **Configuration A:** vector-only, threshold 0.35 (Sprint 2 baseline)  
 **Configuration B:** BM25 + vector, RRF fusion, cross-encoder rerank, threshold 0.5  
@@ -105,3 +105,13 @@ scoped chunks. Raised for the ingestion pipeline (PCOIS2-27).
 **Recommended settings for Sprint 3 generation:** rerank threshold 0.5,
 final top-k 5. Retain the vector-only comparison in this harness so it
 functions as a regression check against future retrieval changes.
+
+- Did BM25 contribute? Check the "Found by" column — rows showing
+  `bm25, vector` are cases where both methods agreed.
+- Is the out-of-scope gap now clean? Compare the highest out-of-scope
+  score against the lowest in-scope score. If the in-scope minimum is
+  above the out-of-scope maximum, a single threshold now works and the
+  Sprint 2 blocker is resolved.
+- Recommended threshold for Sprint 3 generation, based on that gap.
+- Is the retrieved *section* the operative clause, or still Definitions
+  and Purpose sections?

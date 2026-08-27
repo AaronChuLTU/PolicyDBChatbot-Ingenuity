@@ -133,13 +133,9 @@ Runs 16 questions through both vector-only and hybrid, writes
 `docs/retrieval-test-results-sprint3.md`. Run this after any retrieval
 change — it doubles as a regression check.
 
-### Known issue
+### Vector index
 
-The ivfflat index in `build_vector_db.py` uses `lists = 100` against a
-corpus of ~97 chunks, which caused some queries to return zero rows. Drop it
-until the corpus is substantially larger:
-
-```bash
-docker exec -it policydb-pg psql -U postgres -d policydb \
-  -c "DROP INDEX IF EXISTS policy_chunks_embedding_idx;"
-```
+Uses HNSW rather than ivfflat. ivfflat trains its clusters from existing
+rows, but the schema is created before any data is loaded, which produced
+an index that returned zero rows for some queries (found in PCOIS2-47).
+HNSW has no training step and builds incrementally as rows are inserted.

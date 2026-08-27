@@ -55,10 +55,13 @@ CREATE TABLE IF NOT EXISTS policy_chunks (
     embedding     VECTOR({EMBED_DIM})
 );
 
--- ANN index for fast similarity search once the table has real volume.
+-- ANN index for fast similarity search.
+-- HNSW rather than ivfflat: ivfflat needs existing rows to train its
+-- clusters, and this schema runs before any data is loaded, which produced
+-- an index that returned zero rows for some queries (see PCOIS2-47).
+-- HNSW has no training step and builds incrementally as rows are inserted.
 CREATE INDEX IF NOT EXISTS policy_chunks_embedding_idx
-    ON policy_chunks USING ivfflat (embedding vector_cosine_ops)
-    WITH (lists = 100);
+    ON policy_chunks USING hnsw (embedding vector_cosine_ops);
 """
 
 UPSERT_SQL = """
