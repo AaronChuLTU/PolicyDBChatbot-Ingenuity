@@ -1,9 +1,9 @@
 # Generation Test Results - Sprint 3 (PCOIS2-51)
 
-**Date run:** 2026-08-30  
+**Date run:** 2026-09-01  
 **Model:** Ollama / qwen3  
 **Retrieval:** hybrid (BM25 + vector + cross-encoder rerank), threshold 0.5  
-**Questions:** 16  |  **Reached the model:** 7  |  **Flagged for review:** 4
+**Questions:** 16  |  **Reached the model:** 10  |  **Flagged for review:** 5
 
 Live end-to-end run: real Postgres, real retrieval, real model.
 `test_generation.py` covers routing logic with stubs and never calls
@@ -18,26 +18,26 @@ each answer against the excerpts it was given.
 
 - Routing failures: **1**
 - Responses with unsupported numbers or terms: **3**
-- Clean: **12/16**
+- Clean: **11/16**
 
 ## Results
 
 | # | Question | Score | Status | Reached model | Flags | Verdict |
 |---|---|---|---|---|---|---|
-| 1 | What academic dress do graduands wear at a graduation ceremony? | 0.999 | success | yes | UNSUPPORTED TERMS: depending, gowns |  |
-| 2 | Who is entitled to wear a doctoral gown? | 0.902 | low_confidence | no | - |  |
+| 1 | What academic dress do graduands wear at a graduation ceremony? | 0.999 | success | yes | RULE 4 (no citations in answer): "Part E" |  |
+| 2 | Who is entitled to wear a doctoral gown? | 0.902 | success | yes | - |  |
 | 3 | Can I keep my academic gown after the ceremony? | 0.797 | low_confidence | no | - |  |
-| 4 | What happens if a student fails the same subject more than once? | 0.985 | success | yes | - |  |
-| 5 | Can I appeal an academic progression decision? | 0.882 | success | yes | RULE 4 (no citations in answer): "Academic Progression Policy" |  |
+| 4 | What happens if a student fails the same subject more than once? | 0.985 | success | yes | UNSUPPORTED TERMS: involves |  |
+| 5 | Can I appeal an academic progression decision? | 0.882 | success | yes | - |  |
 | 6 | What are the stages of academic progression review? | 0.999 | success | yes | - |  |
-| 7 | How do I apply for promotion to Associate Professor? | 0.977 | low_confidence | no | - |  |
-| 8 | Who sits on the academic promotions committee? | 0.998 | success | yes | UNSUPPORTED TERMS: includes |  |
-| 9 | What is the basis for academic promotion? | 0.991 | low_confidence | no | - |  |
-| 10 | What qualifications must academic staff hold to teach a subject? | 0.999 | success | yes | - |  |
+| 7 | How do I apply for promotion to Associate Professor? | 0.977 | success | yes | - |  |
+| 8 | Who sits on the academic promotions committee? | 0.998 | success | yes | UNSUPPORTED TERMS: includes, serves |  |
+| 9 | What is the basis for academic promotion? | 0.991 | success | yes | - |  |
+| 10 | What qualifications must academic staff hold to teach a subject? | 0.999 | success | yes | UNSUPPORTED TERMS: achieve |  |
 | 11 | Does a lecturer need a qualification higher than the course they teach? | 0.111 | out_of_scope | no | - |  |
 | 12 | What are the English language requirements for admission? | 0.582 | low_confidence | no | - |  |
 | 13 | Can I get credit for prior study when I apply? | 0.028 | out_of_scope | no | - |  |
-| 14 | How are applications for admission assessed? | 0.795 | success | yes | ROUTING: expected low_confidence, got success; UNSUPPORTED TERMS: sure |  |
+| 14 | How are applications for admission assessed? | 0.795 | success | yes | ROUTING: expected low_confidence, got success |  |
 | 15 | How do I book a car parking permit on campus? | 0.000 | out_of_scope | no | - |  |
 | 16 | What food is available at the campus cafe today? | 0.000 | out_of_scope | no | - |  |
 
@@ -54,11 +54,11 @@ the question but the model declined).
 - **Status:** success  
 - **Confidence:** high  
 - **Top rerank score:** 0.999  
-- **Response time:** 3.8s
+- **Response time:** 8.8s
 
 **Answer:**
 
-> Graduands wear the appropriate academic dress described in Part E, which includes specific gowns, hoods, stoles, and trenchers depending on their award. Graduands of Aboriginal and/or Torres Strait Islander descent may also opt to wear an additional stole in specified colours.
+> Graduands wear academic dress appropriate to their qualification, as specified in Part E. This includes a gown, hood, stole, and/or trencher, with colours reflecting the discipline content of the award. Graduands of Aboriginal and/or Torres Strait Islander descent may also wear an additional stole in specified colours.
 
 **Citations:**
 
@@ -70,7 +70,7 @@ the question but the model declined).
 
 **Flags:**
 
-- UNSUPPORTED TERMS: depending, gowns
+- RULE 4 (no citations in answer): "Part E"
 
 <details><summary>Excerpts the model was given</summary>
 
@@ -100,20 +100,44 @@ the question but the model declined).
 
 ### 2. Who is entitled to wear a doctoral gown?
 
-- **Status:** low_confidence  
-- **Confidence:** low  
+- **Status:** success  
+- **Confidence:** high  
 - **Top rerank score:** 0.902  
-- **Response time:** 3.0s
+- **Response time:** 5.1s
 
 **Answer:**
 
-> The available policy information does not provide enough detail to answer this question confidently.
+> Persons who are entitled to wear a doctoral gown are those who have completed a University award, as academic dress is worn by persons who are entitled to wear them by virtue of their completion of a University award. Specifically, graduates of a Doctor of Philosophy or other doctoral degrees, as well as recipients of honorary doctoral degrees, are entitled to wear the academic dress associated with their award.
 
 **Citations:**
 
 - Academic Dress Policy - Section 7 - Definitions (https://policies.latrobe.edu.au/document/view.php?id=208)
 - Academic Dress Policy - Part E -  Specific Academic Dress Requirements (https://policies.latrobe.edu.au/document/view.php?id=208)
 - Academic Dress Policy - Section 5 - Policy Statement (https://policies.latrobe.edu.au/document/view.php?id=208)
+
+<details><summary>Excerpts the model was given</summary>
+
+**Excerpt 1** - Academic Dress Policy / Section 7 - Definitions (score 0.902)
+
+> (13) For the purposes of this Policy: academic dress: the gown, hood or stole and cap, or combination thereof, worn by persons who are entitled to wear them by virtue of their completion of a University award. Academic dress is normally worn only on ceremonial occasions, such as graduations, at which the wearing of academic dress is required or permitted. specialised award: a higher education program that prepares a graduate for a specific career that is generally identified in the name of the award (e.g. Bachelor of Laws, Master of Physiotherapy Practice). It normally requires the graduate to meet the requirements of an external accreditation or registration body as well as the University’s own requirements. trencher: mortarboard; a kind of cap with a stiff, flat, cloth-covered square piece.
+
+**Excerpt 2** - Academic Dress Policy / Part E -  Specific Academic Dress Requirements (score 0.795)
+
+> Award: Sub-degrees Academic Dress: A La Trobe University Bachelor’s gown, together with a stole ten centimetres wide lined with silk in the colour of the discipline. The stole is worn around the neck and drapes down the front of the gown. No trencher is worn. Award: Bachelor Degree Academic Dress: A gown in Oxford blue cloth, with bell-shaped sleeves to the wrist, together with a Burgon style Oxford hood of Oxford blue cloth with a 10-centimetre-wide silk facing in the colour of the discipline, and a black cloth trencher. The hood is worn with the hood’s silk exposed on the right shoulder. Award: Bachelor Degrees with Honours Academic Dress: The components are identical to the components of the academic dress worn by graduates of a Bachelor pass degree. However, Honours graduates will wear the hood with the hood’s silk exposed on the left shoulder instead of on the right Award: Graduate  ...
+
+**Excerpt 3** - Academic Dress Policy / Section 5 - Policy Statement (score 0.614)
+
+> (3) The University will prescribe from time to time the academic dress to be worn on ceremonial occasions, including graduations and presentation ceremonies and such other occasions as the Council may specify, by: officers of the University, members of Council and other members of the University; and/or graduands or graduates of degrees and other awards of the University. (4) The colours used for gown facings, hoods or stoles for particular awards generally will reflect the discipline content of the award, rather than the specific award program or the academic unit that teaches the course. (5) Staff or students of Aboriginal and/or Torres Strait Islander descent who are entitled to wear academic dress may opt to wear also a stole in Aboriginal and/or Torres Strait Islander colours.
+
+**Excerpt 4** - Academic Dress Policy / Section 2 - Purpose (score 0.092)
+
+> (1) This Policy prescribes: the core principles for the use of academic dress; the academic dress to be worn on ceremonial occasions of the University by various categories of staff, University Council (Council) members, and graduands/graduates and other recipients of University awards.
+
+**Excerpt 5** - Academic Dress Policy / Preamble (score 0.054)
+
+> Current Version Status and Details Associated Information Historic Versions Future Versions Print Feedback Academic Dress Policy Section 1 - Key Information Section 2 - Purpose Section 3 - Scope Section 4 - Key Decisions Section 5 - Policy Statement Section 6 - Procedures Part A - Dress and Colour Protocols Part B - Requests for Changes or Additions to Academic Dress Part C - Recording of Academic Dress Requirements Part D - Graduands and Graduates of Aboriginal or Torres Strait Islander Descent Part E - Specific Academic Dress Requirements Staff, Council Members and Visitors Graduands/Graduates and Other Award Recipients Section 7 - Definitions Section 8 - Authority and Associated Information This is the current version of this document. To view historic versions, click the link in the document's navigation bar. Section 1 - Key Information Policy Type and Approval Body Administrative -  ...
+
+</details>
 
 ---
 
@@ -122,7 +146,7 @@ the question but the model declined).
 - **Status:** low_confidence  
 - **Confidence:** low  
 - **Top rerank score:** 0.797  
-- **Response time:** 3.0s
+- **Response time:** 3.6s
 
 **Answer:**
 
@@ -141,15 +165,19 @@ the question but the model declined).
 - **Status:** success  
 - **Confidence:** high  
 - **Top rerank score:** 0.985  
-- **Response time:** 4.3s
+- **Response time:** 4.8s
 
 **Answer:**
 
-> If a student fails the same subject in a course for the second time, they will trigger Academic Progression Stage Two (AP2) - Support and Sanction. The student will be required to attend an academic recovery workshop in the next Progression Period, and their enrolment load will be restricted to a maximum of 45 credit points, unless they are enrolled in a thesis subject or a workplace-based subject.
+> If a student fails the same subject in a course for the second time, they will trigger Academic Progression Stage Two (AP2) – Support and Sanction. This stage involves an enrolment load restriction of a maximum of 45 credit points in the next Progression Period, unless they are enrolled in a thesis subject or a workplace-based subject. Students are also required to attend an academic recovery workshop.
 
 **Citations:**
 
 - Academic Progression Review Policy - Part B - Details of Academic Progression Stages (https://policies.latrobe.edu.au/document/view.php?id=220)
+
+**Flags:**
+
+- UNSUPPORTED TERMS: involves
 
 <details><summary>Excerpts the model was given</summary>
 
@@ -182,21 +210,17 @@ the question but the model declined).
 - **Status:** success  
 - **Confidence:** high  
 - **Top rerank score:** 0.882  
-- **Response time:** 4.0s
+- **Response time:** 4.5s
 
 **Answer:**
 
-> Yes, students may appeal a decision to exclude them from their course under the Academic Progression Policy through the University Appeals Committee (UAC). Students must apply for such a review within twenty (20) business days of notification of the decision. The decision of the UAC is the final decision of the University.
+> Students may seek a review of a decision made to exclude them from their course through the University Appeals Committee (UAC) under the provisions of the Academic Progress Statute 2010. Students must apply for such a review within twenty (20) business days of notification of the decision. The decision of the UAC is the final decision of the University.
 
 **Citations:**
 
 - Academic Progression Review Policy - Part A - Monitoring and Determining Academic Progression (https://policies.latrobe.edu.au/document/view.php?id=220)
 - Academic Progression Review Policy - Part B - Details of Academic Progression Stages (https://policies.latrobe.edu.au/document/view.php?id=220)
 - Academic Progression Review Policy - Section 4 - Key Decisions (https://policies.latrobe.edu.au/document/view.php?id=220)
-
-**Flags:**
-
-- RULE 4 (no citations in answer): "Academic Progression Policy"
 
 <details><summary>Excerpts the model was given</summary>
 
@@ -229,11 +253,11 @@ the question but the model declined).
 - **Status:** success  
 - **Confidence:** high  
 - **Top rerank score:** 0.999  
-- **Response time:** 4.6s
+- **Response time:** 5.1s
 
 **Answer:**
 
-> If a student is enrolled in a workplace-based subject and triggers Academic Progression Stage Two (AP2), their enrolment will be reviewed by their Course Coordinator to determine if an enrolment load restriction should be applied. If they are an international student, the potential impact on their CoE and visa will be communicated. They are required to attend an academic recovery workshop facilitated by Student Advisors in the next Progression Period. The enrolment sanction can be lifted following attendance/engagement with the academic recovery workshop.
+> The stages of academic progression review are Academic Progression Stage One (AP1) – Recovery, Academic Progression Stage Two (AP2) – Support and Sanction, and Academic Progression Stage Three (AP3) – Show Cause and Course Exclusion. These stages are triggered based on the thresholds of subject failure and are associated with specific support and interventions.
 
 **Citations:**
 
@@ -271,14 +295,14 @@ the question but the model declined).
 
 ### 7. How do I apply for promotion to Associate Professor?
 
-- **Status:** low_confidence  
-- **Confidence:** low  
+- **Status:** success  
+- **Confidence:** high  
 - **Top rerank score:** 0.977  
-- **Response time:** 3.5s
+- **Response time:** 7.1s
 
 **Answer:**
 
-> The available policy information does not provide enough detail to answer this question confidently.
+> To apply for promotion to Associate Professor, applicants must meet the qualifications and/or experience requirements, assess their eligibility against the Minimum Standards for Academic Levels and the Academic Performance Framework, and submit a completed Academic Promotions Application Form, CV, and supporting documents electronically via the Academic Promotions link on the Internal Jobs intranet page. Applicants are encouraged to seek guidance from their Career Success Manager, Academic Reviewer, Head of Department, Dean, or academic mentor before submitting their application. The Academic Promotions Committee will convene once per year to consider applications, and applications must be submitted by the cut-off date for inclusion in those meetings.
 
 **Citations:**
 
@@ -287,6 +311,30 @@ the question but the model declined).
 - Academic Promotions Policy - Part B - Basis for Promotion (https://policies.latrobe.edu.au/document/view.php?id=76)
 - Academic Promotions Policy - Part F - Special Cases (https://policies.latrobe.edu.au/document/view.php?id=76)
 
+<details><summary>Excerpts the model was given</summary>
+
+**Excerpt 1** - Academic Promotions Policy / Section 3 - Scope (score 0.977)
+
+> (2) This Policy applies to all academic staff employed at La Trobe University whether full time or part time, fixed-term or continuing, academic practitioners, and those with joint appointments who seek promotion to: Level B (Lecturer; Research Fellow) Level C (Senior Lecturer; Senior Research Fellow) Level D (Associate Professor; or Principal Research Fellow and Associate Professor) Level E (Professor) (3) This Policy does not apply to casual or sessional academic staff, clinical practitioners, or recent professional practice employees. (4) Staff must have successfully completed probation prior to lodging an application for promotion. In exceptional circumstances, applicants may apply to the Provost to have requirement waived. (5) Fixed-term staff are eligible to apply for promotion but if a promotion is granted it will not extend a fixed-term appointment.
+
+**Excerpt 2** - Academic Promotions Policy / Preamble (score 0.942)
+
+> Current Version Status and Details Associated Information Historic Versions Future Versions Print Feedback Academic Promotions Policy Section 1 - Key Information Section 2 - Purpose Section 3 - Scope Section 4 - Key Decisions Section 5 - Policy Statement Principles Section 6 - Procedures Part A - Domains of Academic Work Part B - Basis for Promotion Qualifications and/or Relevant Experience Preparing and Lodging the Application Part C - Referee and External Assessor Reports Referee Reports Independent External Assessors for Applications to Level D and E Only Part D - Academic Promotions Committees Membership of Academic Promotions Committees Assessment of Application Approval Process Part E - Outcomes Effective Date of Promotion and Salary Point Unsuccessful Applicants Reconsideration Part F - Special Cases Upgrading a Reversionary Substantive Position Promotion of Joint Appointments Out ...
+
+**Excerpt 3** - Academic Promotions Policy / Part B - Basis for Promotion (score 0.936)
+
+> (21) The Committee will, in the context of the level for which promotion is applied, consider the appropriateness of levels and types of formal qualifications and/or substantial progress towards such qualifications or, where relevant consider and determine the equivalence of alternative qualifications and/or experience held by applicants. (22) Applicants will assess whether they are eligible for promotion and merit promotion with reference to the Minimum Standards for Academic Levels and the Academic Performance Framework . (23) Applicants are strongly encouraged to seek guidance and discuss their application with the following before making an application for promotion: Career Success Manager/Academic Reviewer/Head of Department Dean/Director of Centre/Institute An academic mentor (24) The Academic Promotions Committee will convene once per year to consider applications. The dates of Ac ...
+
+**Excerpt 4** - Academic Promotions Policy / Part B - Basis for Promotion (score 0.790)
+
+> (26) Applicants must follow the “Instructions for Applicants” and submit applications electronically via the Academic Promotions link that will be available on the Internal Jobs intranet page. The submission must include: completed Academic Promotions Application Form CV in the standardised format, available on the Academic Promotions Intranet all supporting documents as required by the “Instructions for Applicants”. (27) Applicants will receive an automatic acknowledgment once their application has been lodged.
+
+**Excerpt 5** - Academic Promotions Policy / Part F - Special Cases (score 0.761)
+
+> (78) A staff member who holds a continuing substantive position and is appointed as a result of an externally competitive process to a fixed-term academic position at a higher level at La Trobe, may apply for promotion to upgrade their reversionary substantive position. (79) Provided that the fixed-term appointment and the substantive position are both research-only positions, the staff member may submit their appointment application in place of the narrative section of their promotion application. All other promotion documentation and reports are required as for a standard application. (80) A current Level C member of staff who has been awarded an ARC Future Fellowship or an NHMRC Investigator Grant at equivalent to Level D may apply for promotion on the basis of excellence in research to upgrade their substantive position. Provided the applicant applies within 18 months of being awarde ...
+
+</details>
+
 ---
 
 ### 8. Who sits on the academic promotions committee?
@@ -294,11 +342,11 @@ the question but the model declined).
 - **Status:** success  
 - **Confidence:** high  
 - **Top rerank score:** 0.998  
-- **Response time:** 5.0s
+- **Response time:** 11.4s
 
 **Answer:**
 
-> The academic promotions committee for promotion to Levels B and C includes the Deputy Vice-Chancellor (Research and Innovation) as Chair (ex officio), Deputy Vice-Chancellor (Academic) or nominee (ex officio), Pro Vice-Chancellor (Research) or nominee (ex officio), Deputy Provost (ex officio), Chair of Academic Board or nominee from the Academic Board membership (ex officio), up to five academic members at Academic Level D or E nominated by the Vice-Chancellor, Chief People Officer or nominee as a non-voting observer, and one invited Level E academic who is external to La Trobe University. For promotion to Levels D and E, the committee includes the Provost as Chair (ex officio).
+> The academic promotions committee includes the Deputy Vice-Chancellor (Academic) (ex officio), Pro Vice-Chancellor (Research) (ex officio), Deputy Provost (ex officio), Chair of Academic Board (ex officio), up to five academic members at Academic Level E nominated by the Vice-Chancellor, Chief People Officer or nominee as a non-voting observer, and one invited Level E academic who is external to La Trobe University. For promotion to Levels B and C, the committee also includes the Deputy Vice-Chancellor (Research and Innovation) as Chair, and for promotion to Levels D and E, the Provost serves as Chair.
 
 **Citations:**
 
@@ -308,7 +356,7 @@ the question but the model declined).
 
 **Flags:**
 
-- UNSUPPORTED TERMS: includes
+- UNSUPPORTED TERMS: includes, serves
 
 <details><summary>Excerpts the model was given</summary>
 
@@ -338,14 +386,14 @@ the question but the model declined).
 
 ### 9. What is the basis for academic promotion?
 
-- **Status:** low_confidence  
-- **Confidence:** low  
+- **Status:** success  
+- **Confidence:** high  
 - **Top rerank score:** 0.991  
-- **Response time:** 3.4s
+- **Response time:** 12.7s
 
 **Answer:**
 
-> The available policy information does not provide enough detail to answer this question confidently.
+> Promotion is based on the applicant’s qualifications and/or experience, evidence of achievement in the domains of academic activity: teaching, research/SOLT and service, as appropriate with respect to the type of employment and agreed work plan, and confirmation from the applicant’s Career Success Manager/Academic Reviewer that the applicant has demonstrated a level of achievement and performance that is appropriate to their existing academic level. In addition, consideration is given to the appropriate balance of performance and outcomes in disciplines and professions where there is a greater reliance on current professional practice, joint appointments with partner institutions or industry, performance relative to opportunity, and recognition of interrupted careers and fractional appointments due to family commitments, ill health or medical condition, disability or major life disruptions. Applicants must provide supporting evidence for any claims made in their application.
 
 **Citations:**
 
@@ -354,6 +402,30 @@ the question but the model declined).
 - Academic Promotions Policy - Preamble (https://policies.latrobe.edu.au/document/view.php?id=76)
 - Academic Promotions Policy - Part F - Special Cases (https://policies.latrobe.edu.au/document/view.php?id=76)
 
+<details><summary>Excerpts the model was given</summary>
+
+**Excerpt 1** - Academic Promotions Policy / Part B - Basis for Promotion (score 0.991)
+
+> (17) Promotion is based on: the applicant’s qualifications and/or experience; evidence (see Definitions) of achievement in the domains of academic activity: teaching, research/SOLT and service, as appropriate with respect to the type of employment and agreed work plan; confirmation from the applicant’s Career Success Manager/Academic Reviewer that the applicant has demonstrated a level of achievement and performance that is appropriate to their existing academic level. (18) In addition to the above, consideration is also given to the following: the appropriate balance of performance and outcomes in disciplines and professions where there is a greater reliance on current professional practice; joint appointments with partner institutions or industry; performance relative to opportunity and recognition of interrupted careers and fractional appointments due to family commitments (e.g. paren ...
+
+**Excerpt 2** - Academic Promotions Policy / Academic Promotions Policy (score 0.986)
+
+> Section 1 - Key Information Section 2 - Purpose Section 3 - Scope Section 4 - Key Decisions Section 5 - Policy Statement Principles Section 6 - Procedures Part A - Domains of Academic Work Part B - Basis for Promotion Qualifications and/or Relevant Experience Preparing and Lodging the Application Part C - Referee and External Assessor Reports Referee Reports Independent External Assessors for Applications to Level D and E Only Part D - Academic Promotions Committees Membership of Academic Promotions Committees Assessment of Application Approval Process Part E - Outcomes Effective Date of Promotion and Salary Point Unsuccessful Applicants Reconsideration Part F - Special Cases Upgrading a Reversionary Substantive Position Promotion of Joint Appointments Out of Cycle Expedited Promotion – Exceptional Circumstances Section 7 - Definitions Section 8 - Authority and Associated Information
+
+**Excerpt 3** - Academic Promotions Policy / Preamble (score 0.983)
+
+> Current Version Status and Details Associated Information Historic Versions Future Versions Print Feedback Academic Promotions Policy Section 1 - Key Information Section 2 - Purpose Section 3 - Scope Section 4 - Key Decisions Section 5 - Policy Statement Principles Section 6 - Procedures Part A - Domains of Academic Work Part B - Basis for Promotion Qualifications and/or Relevant Experience Preparing and Lodging the Application Part C - Referee and External Assessor Reports Referee Reports Independent External Assessors for Applications to Level D and E Only Part D - Academic Promotions Committees Membership of Academic Promotions Committees Assessment of Application Approval Process Part E - Outcomes Effective Date of Promotion and Salary Point Unsuccessful Applicants Reconsideration Part F - Special Cases Upgrading a Reversionary Substantive Position Promotion of Joint Appointments Out ...
+
+**Excerpt 4** - Academic Promotions Policy / Part B - Basis for Promotion (score 0.972)
+
+> (21) The Committee will, in the context of the level for which promotion is applied, consider the appropriateness of levels and types of formal qualifications and/or substantial progress towards such qualifications or, where relevant consider and determine the equivalence of alternative qualifications and/or experience held by applicants. (22) Applicants will assess whether they are eligible for promotion and merit promotion with reference to the Minimum Standards for Academic Levels and the Academic Performance Framework . (23) Applicants are strongly encouraged to seek guidance and discuss their application with the following before making an application for promotion: Career Success Manager/Academic Reviewer/Head of Department Dean/Director of Centre/Institute An academic mentor (24) The Academic Promotions Committee will convene once per year to consider applications. The dates of Ac ...
+
+**Excerpt 5** - Academic Promotions Policy / Part F - Special Cases (score 0.959)
+
+> a statement by the Provost detailing the exceptional circumstances which would warrant out-of-cycle, expedited assessment (including evidence of an offer to the staff member from another University if this is the basis for the case); the date by which the applicant must respond to an offer from another University (if applicable); the significance of the staff member’s contributions in terms of meeting strategic or operational objectives of the area/University; an assessment of the staff member’s profile and contributions against the criteria for promotion to that level; a statement from the Dean supporting the promotion; details of two assessors nominated by the Provost in consultation with the professor of discipline or other appropriate senior person with a knowledge of a particular discipline or specialist area may be required upon request of the Vice-Chancellor and/or the Chair of th ...
+
+</details>
+
 ---
 
 ### 10. What qualifications must academic staff hold to teach a subject?
@@ -361,11 +433,11 @@ the question but the model declined).
 - **Status:** success  
 - **Confidence:** high  
 - **Top rerank score:** 0.999  
-- **Response time:** 3.9s
+- **Response time:** 5.1s
 
 **Answer:**
 
-> The policy requires that academic staff must be appropriately qualified for the level of their teaching responsibilities, and a robust framework for the assessment of Professional Equivalence is applied for teaching staff who do not possess the requisite qualification for a given level of teaching according to the Standards.
+> La Trobe University ensures that academic staff are appropriately qualified for the level of their teaching responsibilities. Staff who do not meet the requisite qualification for a given level of teaching must achieve Professional Equivalence through a robust assessment framework. The University maintains records of all staff qualifications, assessments of professional equivalence, and professional development plans.
 
 **Citations:**
 
@@ -373,6 +445,10 @@ the question but the model declined).
 - Academic Staff Qualifications Policy - Section 6 - Procedures (https://policies.latrobe.edu.au/document/view.php?id=420)
 - Academic Staff Qualifications Policy - Preamble (https://policies.latrobe.edu.au/document/view.php?id=420)
 - Academic Staff Qualifications Policy - Section 3 - Scope (https://policies.latrobe.edu.au/document/view.php?id=420)
+
+**Flags:**
+
+- UNSUPPORTED TERMS: achieve
 
 <details><summary>Excerpts the model was given</summary>
 
@@ -419,7 +495,7 @@ the question but the model declined).
 - **Status:** low_confidence  
 - **Confidence:** low  
 - **Top rerank score:** 0.582  
-- **Response time:** 3.6s
+- **Response time:** 4.0s
 
 **Answer:**
 
@@ -450,12 +526,12 @@ the question but the model declined).
 - **Status:** success  
 - **Confidence:** medium  
 - **Top rerank score:** 0.795  
-- **Response time:** 4.5s
+- **Response time:** 6.8s
 - **Note:** ACCEPTANCE TEST for PCOIS2-49. Retrieval hands this Academic Promotions text at 0.795, well above threshold. A fluent answer about promotion committees is a hallucination and a fail
 
 **Answer:**
 
-> Applications for admission are assessed based on entry requirements, which are approved by the Academic Board. The University ensures transparency and equity in selection processes, making sure entry requirements are equivalent for domestic and international applicants. Applicants who meet all entry requirements are eligible for consideration but are not guaranteed an offer. Admission is based on competitive selection, and entry into courses may have limited places available.
+> Applications for admission are assessed based on entry requirements, which are approved by the Academic Board, and are transparent, equitable, and clearly communicated. The University ensures that entry requirements are equivalent for domestic and international applicants and that information regarding these requirements is easily accessible. Applicants who meet all applicable entry requirements are eligible to be considered for entry but are not guaranteed a place, as entry is based on competitive selection.
 
 **Citations:**
 
@@ -464,7 +540,6 @@ the question but the model declined).
 **Flags:**
 
 - ROUTING: expected low_confidence, got success
-- UNSUPPORTED TERMS: sure
 
 <details><summary>Excerpts the model was given</summary>
 
@@ -497,7 +572,7 @@ the question but the model declined).
 - **Status:** out_of_scope  
 - **Confidence:** low  
 - **Top rerank score:** 0.000  
-- **Response time:** 0.6s
+- **Response time:** 0.7s
 - **Note:** Out-of-scope control - scored 0.000, must not reach the model
 
 **Answer:**
@@ -522,73 +597,99 @@ the question but the model declined).
 
 ## Observations
 
-## Observations
+**1. The acceptance test passed.**
+Question 14 hands the model Academic Promotions text at 0.795, well above the
+0.5 threshold, so nothing upstream filters it. The model ignored it and
+answered from the Admissions Policy excerpts scoring 0.191 and 0.099. Every
+claim traces to those chunks; nothing about promotion committees appears.
+Rule 1 works. This is the failure mode the prompt exists to prevent, and it
+held across all three runs including after the rules were loosened.
 
-**1. The acceptance test result is more nuanced than a pass/fail.**
-Question 14 was flagged as a routing failure, but reading the answer against
-the excerpts shows the prompt worked as designed. The model was handed
-Academic Promotions text at 0.795 and ignored it, answering instead from the
-Admissions Policy excerpts that scored 0.191 and 0.099. Every claim traces to
-those chunks. Rule 1 did its job.
+**2. No hallucinated figures in any run.**
+Zero unsupported numbers across all 16 questions in every run. Since policy
+answers turn on day counts, credit points and percentages - "twenty (20)
+business days", "45 credit points" - and an invented figure is both the most
+damaging error and the easiest to detect, this is the strongest available
+evidence that grounding is holding.
 
-**2. The real defect is citation integrity, and it is more serious.**
-Because `build_citations()` filters to chunks scoring at or above 0.50, the
-Admissions chunks the answer was actually built from were excluded, and the
-only citation attached is "Academic Promotions Policy - Section 5". The
-answer is correct; the citation points at an unrelated policy. For a system
-whose stated purpose is source-referenced answers, a correct answer with a
-wrong citation is worse than a refusal - it is confidently unverifiable, and
-a user following the link finds a policy about staff promotion.
+**3. Over-refusal was the main defect, and the prompt rewrite substantially
+fixed it.**
+The first live run refused 5 of 12 in-scope questions, several with rerank
+scores above 0.97. After the rewrite, 10 of 16 questions reached a generated
+answer, up from 7, and over-refusals dropped from 5 to 2. Question 9 is the
+clearest case: previously refused despite a 0.991 score on a section titled
+"Part B - Basis for Promotion", it now returns the operative clause verbatim.
+Question 7 now returns the actual application procedure including electronic
+submission via the Internal Jobs intranet page.
 
-Two possible fixes, for whoever owns PCOIS2-50:
-- Cite every chunk the model was shown, not only those above the threshold.
-- Or have the model indicate which excerpts it used, and cite those.
-The first is simpler and errs toward over-citing, which is the safer
-direction.
+**4. Question 6 was answering the wrong question, and now does not.**
+Asked for the stages of academic progression review, the earlier runs
+described AP2 mechanics - Course Coordinator review, CoE and visa
+implications - despite excerpt 1 listing the three stages explicitly. It now
+returns AP1 Recovery, AP2 Support and Sanction, and AP3 Show Cause and Course
+Exclusion. No automated check caught the original error, because the words
+used did appear somewhere in the excerpts. This is a limitation of
+term-matching: it detects invented content, not irrelevant content.
 
-**3. Over-refusal is the dominant failure mode: 5 of 12 in-scope questions.**
-Questions 2, 3, 7, 9 and 12 returned low_confidence despite scores of 0.902,
-0.797, 0.977, 0.991 and 0.582. Question 9 is the clearest case - "What is the
-basis for academic promotion?" retrieved "Part B - Basis for Promotion" at
-0.991, a section named after the question, and the model still declined.
-Refusing is the safer direction to fail, but at this rate the chatbot
-declines to answer a large share of legitimate questions, which undermines
-its usefulness. Rule 2's list of refusal triggers is likely too broad,
-particularly the clause about definitions and scope statements.
+**5. Three prompt changes were made together and cannot be attributed
+individually.**
+Answering was moved ahead of refusing and given a worked example; the user
+prompt was changed so it no longer ends on the refusal instruction; and
+excerpts now carry their section heading. The section-heading change is the
+most likely driver - a chunk headed "Part B - Basis for Promotion" is strong
+evidence it answers "what is the basis for promotion", and withholding it
+discarded that signal. Setting INCLUDE_SECTION_TITLES = False and re-running
+would isolate it. Policy titles remain withheld, so the citation-invention
+risk the original design guarded against is unchanged.
 
-**4. Question 6 answered a different question, and no check caught it.**
-Asked for the stages of academic progression review. Excerpt 1 lists them
-explicitly (AP1 Recovery, AP2 Support and Sanction, AP3 Show Cause and Course
-Exclusion), but the answer instead described AP2 mechanics, Course
-Coordinator review and international student visa implications. The response
-is grounded in the corpus but does not answer what was asked. No automated
-flag fired, since the words used do appear somewhere in the excerpts. This is
-a limitation of term-matching as a check: it detects invented content, not
-irrelevant content.
+**6. An earlier hypothesis was tested and rejected.**
+Before this rewrite, a narrower change loosened one Rule 2 bullet about
+definitions and scope statements. It produced no improvement on the four
+target questions and one regression: question 2 stopped refusing but answered
+about British colour standards rather than doctoral gowns. That change was
+reverted. Recording it matters because it shows the improvement above came
+from the second hypothesis, not the first.
 
-**5. Two Rule 4 violations; one escaped detection.**
-Question 5 wrote "under the Academic Progression Policy" into the answer body
-(also a slight misnaming - the document is the Academic Progression Review
-Policy). Question 1 wrote "described in Part E". The detection regex matches
-"Part" followed by a digit but not by a letter, so the second was missed. The
-pattern should be widened.
+**7. The two remaining refusals appear correct.**
+Question 3 (keeping the gown after the ceremony) - the Academic Dress Policy
+does not address ownership. Question 12 (English language requirements) - the
+Admissions Policy refers to a separate English Language Entry Requirements
+Policy which is not in the corpus. Both are corpus gaps rather than model
+errors, matching the pattern already identified for question 13 and credit
+transfer. Expanding ingestion beyond the five pilot policies should resolve
+all three.
 
-**6. The chunking defect is visible in generation, not just retrieval.**
-Preamble chunks - containing the document's table of contents and site
-navigation - appear in the excerpt set for questions 1 and 6. They consume
-context slots that could hold substantive clauses, and question 6's answer
-may have been influenced by the model reading a list of section headings as
-content. This supports fixing the clean_and_chunk.py duplication defect
-before expanding the corpus.
+**8. Citation integrity is the outstanding defect.**
+Question 14's answer is drawn from Admissions Policy excerpts but its only
+citation reads "Academic Promotions Policy - Section 5". This is because
+build_citations() in respond.py filters to chunks scoring at or above 0.50,
+and only the promotions chunk cleared it. For a system whose stated purpose
+is source-referenced answers, a correct answer with a wrong citation is worse
+than a refusal: it is confidently unverifiable, and a user following the link
+lands on an unrelated policy. Raised for PCOIS2-50.
 
-**7. Response times are acceptable.**
-3-5 seconds per generated answer after model load, and under 1 second for
-questions filtered before generation. Suitable for an interactive chatbot.
+**9. One minor rule violation.**
+Question 1's answer writes "as specified in Part E", breaching the rule
+against writing section references. Cosmetic rather than a grounding failure,
+and the detection regex was widened during this sprint to catch letter-suffixed
+parts as well as numbered sections.
 
-**Overall assessment.** The hallucination defences hold: no invented figures,
-no fabricated policy content, and out-of-scope controls stopped before
-reaching the model in every case. The two problems worth carrying into Sprint
-4 are citation integrity, which is a correctness issue affecting user trust,
-and over-refusal, which is a usefulness issue. Neither was visible from the
-stubbed tests in test_generation.py, and both were found on the first live
-run.
+**10. Chunking defects reach the model.**
+Preamble and table-of-contents chunks appear in the excerpt sets for questions
+1, 6, 7, 9 and 10, scoring as high as 0.996. They occupy context slots that
+could hold substantive clauses. An explicit refusal trigger for
+table-of-contents content was added to the prompt as mitigation, but the
+underlying fix is the clean_and_chunk.py duplication defect.
+
+**11. Response times are acceptable.**
+3-13 seconds per generated answer, and under 1 second for questions filtered
+before generation. Suitable for an interactive chatbot, though the longer
+responses would benefit from streaming output in the frontend.
+
+**Overall.** Grounding holds: no invented figures, no fabricated policy
+content, and the confidently-wrong-policy scenario the prompt was written to
+prevent did not occur. The prompt rewrite converted three incorrect refusals
+into correct answers without weakening that defence. Remaining work is
+citation integrity in respond.py, the chunking defect in clean_and_chunk.py,
+and corpus expansion to close the three content gaps - none of which are
+prompt problems.
