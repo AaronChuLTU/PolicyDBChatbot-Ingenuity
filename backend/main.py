@@ -16,6 +16,11 @@ layer should: load those pieces once at startup, expose them over HTTP,
 validate the request/response shape, and fail predictably when a
 dependency (Postgres, Ollama) isn't there.
 
+PCOIS2-57: Every /ask call is also written to policy_query_logs.db via
+query_logger.log_query() - timestamp, question, retrieved chunks
+(citations, since that's what answer_question() returns to this layer -
+see query_logger.py's docstring), and the final answer.
+
 Run:
     uvicorn main:app --reload --port 8000
     python main.py                       # same thing, no --reload
@@ -60,6 +65,7 @@ for _dir in ("generation", "data-pipeline"):
 # for respond.py directly.
 from ollama_client import OllamaClient                      # noqa: E402
 from respond import answer_question                         # noqa: E402
+from query_logger import log_query                          # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("policydb.api")
@@ -194,6 +200,22 @@ def ask(payload: AskRequest, retriever=Depends(get_retriever), client=Depends(ge
         "status=%s confidence=%s citations=%d elapsed_ms=%.0f",
         result["status"], result["confidence"], len(result["citations"]), elapsed_ms,
     )
+
+    # --- audit log (PCOIS2-57) ---
+    # answer_question() doesn't hand this layer the raw pre-generation
+    # chunks, only the final citations - so those are what get logged as
+    # "retrieved chunks" here. See query_logger.py's docstring.
+    log_query(
+        question=payload.question,
+        retrieved_chunks=result["citations"],
+        final_answer=result["answer"],
+        metadata={
+            "status": result["status"],
+            "confidence": result["confidence"],
+            "elapsed_ms": round(elapsed_ms),
+        },
+    )
+
     return result
 
 
