@@ -150,6 +150,10 @@ def answer_question(question: str, retriever, client) -> dict:
     client:    an ollama_client.OllamaClient
     """
     question = (question or "").strip()
+    from input_safety import check_input_safety
+    is_safe, reason = check_input_safety(question)
+    if not is_safe:
+        return error_response(question, f"Your question couldn't be processed: {reason}")
     if not question:
         return error_response("", "No question was provided.")
 
