@@ -81,7 +81,7 @@ hasn't:
    so make sure that machine has internet access.
 
 
-## Hybrid retrieval (Sprint 3) - Aaron
+## Hybrid retrieval
 
 `hybrid_search.py` — retrieval used by everything downstream. Three stages:
 
@@ -139,3 +139,15 @@ Uses HNSW rather than ivfflat. ivfflat trains its clusters from existing
 rows, but the schema is created before any data is loaded, which produced
 an index that returned zero rows for some queries (found in PCOIS2-47).
 HNSW has no training step and builds incrementally as rows are inserted.
+
+### Corpus (Sprint 3)
+
+The pipeline now ingests all current La Trobe policies, not the five-policy
+Sprint 1 pilot. Run `discover_policies.py` against a saved copy of the Policy
+Library search results to regenerate `data/policy_index.json`, then re-run the
+pipeline. Expired policies are excluded at discovery.
+
+Known limitation: discovery filters on Document Type = Policy, so Procedures,
+Standards and Schedules are not ingested. Several policies delegate their
+operative detail to those documents - see the Sprint 3 test results for
+affected questions.
