@@ -35,15 +35,36 @@ BASE = "https://policies.latrobe.edu.au/document/view.php"
 OUT_DIR = "data/raw"
 MANIFEST_PATH = "data/manifest.json"
 
-# The five policies scoped in PCOIS2-12 (first five non-expired results
-# from the Policy Library search, per datascopesprint1.docx).
-POLICIES = [
+POLICY_INDEX_PATH = "data/policy_index.json"
+
+# Fallback: the five policies scoped in Sprint 1 (PCOIS2-12), used when
+# no discovery file exists yet.
+FALLBACK_POLICIES = [
     {"id": 208, "title": "Academic Dress Policy", "category": "Academic Affairs"},
     {"id": 220, "title": "Academic Progression Review Policy", "category": "Student Administration"},
     {"id": 76,  "title": "Academic Promotions Policy", "category": "Human Resources"},
     {"id": 420, "title": "Academic Staff Qualifications Policy", "category": "Human Resources"},
     {"id": 169, "title": "Admissions Policy", "category": "Student Administration"},
 ]
+
+def load_policies():
+    """Read the discovered policy list if present, else fall back to the
+    Sprint 1 pilot set. Run discover_policies.py to generate the index."""
+    if os.path.exists(POLICY_INDEX_PATH):
+        with open(POLICY_INDEX_PATH, encoding="utf-8") as f:
+            policies = json.load(f)
+        print(f"Loaded {len(policies)} policies from {POLICY_INDEX_PATH}")
+        return [
+            {
+                "id": p["id"],
+                "title": p.get("title") or f"Policy {p['id']}",
+                "category": p.get("category"),
+            }
+            for p in policies
+        ]
+    print(f"No {POLICY_INDEX_PATH} found - using Sprint 1 pilot set of 5.")
+    return FALLBACK_POLICIES
+
 
 HEADERS = {"User-Agent": "PolicyDB-Chatbot-Capstone/1.0 (La Trobe CSE3CAP research project)"}
 
@@ -105,9 +126,10 @@ def process_one(policy: dict, url: str, html: str) -> dict:
 
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
+    policies = load_policies()
     manifest = []
     with requests.Session() as session:
-        for p in POLICIES:
+        for p in policies:
             print(f"Fetching ({p['id']}) {p['title']} ...")
             try:
                 url, html = fetch_policy(p["id"], session)
@@ -135,7 +157,7 @@ def main():
 
     with open(MANIFEST_PATH, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
-    print(f"\nDone. {len(manifest)}/{len(POLICIES)} policies saved. Manifest: {MANIFEST_PATH}")
+    print(f"\nDone. {len(manifest)}/{len(policies)} policies saved. Manifest: {MANIFEST_PATH}")
 
 
 if __name__ == "__main__":

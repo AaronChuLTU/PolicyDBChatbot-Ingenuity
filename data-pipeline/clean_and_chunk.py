@@ -108,6 +108,11 @@ def extract_sections(content: Tag):
             # skip if this element's text is purely inside a table we already handled
             if el.find_parent("table") is not None:
                 continue
+            # skip container elements that wrap other blocks - get_text() on a
+            # wrapper returns everything nested inside it, which is what
+            # produced the duplicated full-document chunk in 169-0-0
+            if el.find(["p", "li", "table"]) is not None:
+                continue
             txt = el.get_text(" ", strip=True)
             if txt and "doc-meta" not in (el.get("class") or []):
                 current["blocks"].append(("para", txt))

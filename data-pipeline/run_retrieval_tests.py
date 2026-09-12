@@ -63,14 +63,15 @@ TEST_QUESTIONS = [
     ("Does a lecturer need a qualification higher than the course they teach?",
      "Academic Staff Qualifications Policy", None),
     ("What are the English language requirements for admission?",
-     "Admissions Policy", None),
+     "English Language Entry Requirements Policy", None),
     ("Can I get credit for prior study when I apply?",
-     "Admissions Policy", None),
+     "VET Students Policy", None),
     ("How are applications for admission assessed?",
      "Admissions Policy", None),
     # Out-of-scope controls
-    ("How do I book a car parking permit on campus?", None, None),
+    ("How do I book a car parking permit on campus?", "Campus Access, Premises and Facilities Policy", None),
     ("What food is available at the campus cafe today?", None, None),
+    ("What is the wifi password for the student network?", None, None),
 ]
 
 
