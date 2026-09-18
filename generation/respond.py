@@ -42,12 +42,12 @@ CITATION_THRESHOLD = 0.50    # below this: chunk is not cited
 HIGH_CONFIDENCE = 0.85       # in-scope questions clustered at 0.88-0.999
 
 ESCALATION_OUT_OF_SCOPE = (
-    "Please rephrase your question or visit the official La Trobe University "
-    "website for further assistance."
+    "This falls outside the policies I have access to. Please contact "
+    "ASK La Trobe or email policy@latrobe.edu.au for further assistance."
 )
 ESCALATION_LOW_CONFIDENCE = (
-    "Please check the complete policy document or contact the appropriate "
-    "University area for confirmation."
+    "I couldn't find a confident answer in the policy documents. Please "
+    "verify with ASK La Trobe or email policy@latrobe.edu.au for confirmation."
 )
 NO_ANSWER_TEXT = (
     "I could not find relevant information in the available La Trobe "
