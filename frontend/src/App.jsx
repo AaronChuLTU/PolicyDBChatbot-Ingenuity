@@ -1,9 +1,12 @@
 // App.jsx — the page shell for the Policy DB Chatbot.
-// Sprint 2 scope: framework chosen (React+Vite), repo structured, and this
-// basic shell in place — header, disclaimer, conversation area, composer.
-// The backend call is stubbed in src/api/policyApi.js until retrieval is ready.
+//
+// Sprint 4:
+//   PCOIS2-64 — the conversation now runs against the real POST /ask
+//               endpoint (PCOIS2-56) via src/api/policyApi.js.
+//   PCOIS2-65 — a "Thinking…" indicator while the request is in flight,
+//               and a recoverable error state with a Try again button.
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Message from "./components/Message.jsx";
 import { askPolicyQuestion } from "./api/policyApi.js";
 import "./styles/theme.css";
@@ -13,27 +16,58 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  // { message, question } — question is kept so Try again can resend it.
+  const [error, setError] = useState(null);
   const [theme, setTheme] = useState("light");
+
+  // The in-flight request, so it can be cancelled on unmount.
+  const requestRef = useRef(null);
 
   // Apply the chosen theme to the <html> element so the CSS tokens switch.
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
+  // Don't leave a request running against an unmounted component.
+  useEffect(() => () => requestRef.current?.abort(), []);
+
   function toggleTheme() {
     setTheme((t) => (t === "light" ? "dark" : "light"));
   }
 
-  async function handleSend() {
-    const question = input.trim();
+  /**
+   * Send a question and fold the result into the conversation.
+   *
+   * `isRetry` skips re-appending the user's bubble: on a retry the
+   * question is already sitting in the transcript, and echoing it again
+   * would make the history read as though they asked twice.
+   */
+  async function ask(question, { isRetry = false } = {}) {
     if (!question || loading) return;
 
-    setMessages((m) => [...m, { role: "user", text: question }]);
-    setInput("");
+    setError(null);
+    if (!isRetry) {
+      setMessages((m) => [...m, { role: "user", text: question }]);
+      setInput("");
+    }
     setLoading(true);
 
+    const controller = new AbortController();
+    requestRef.current = controller;
+
     try {
-      const res = await askPolicyQuestion(question);
+      const res = await askPolicyQuestion(question, { signal: controller.signal });
+
+      // status "error" is the backend telling us the pipeline broke
+      // partway (retrieval or Ollama unreachable) — see respond.py's
+      // error_response(). It arrives as a normal 200, but it isn't an
+      // answer, so it belongs in the error state where the user gets a
+      // Try again rather than in the transcript as a bot reply.
+      if (res.status === "error") {
+        setError({ message: res.answer, question });
+        return;
+      }
+
       setMessages((m) => [
         ...m,
         {
@@ -45,17 +79,33 @@ export default function App() {
         },
       ]);
     } catch (err) {
-      setMessages((m) => [
-        ...m,
-        { role: "bot", text: "Sorry — I couldn't reach the policy service. Please try again." },
-      ]);
+      // We cancelled this ourselves (unmount) — nothing to report.
+      if (err?.name === "AbortError" && controller.signal.aborted) return;
+      setError({
+        message: err?.message || "Something went wrong. Please try again.",
+        question,
+      });
     } finally {
-      setLoading(false);
+      // Only the newest request owns the loading flag.
+      if (requestRef.current === controller) {
+        requestRef.current = null;
+        setLoading(false);
+      }
     }
   }
 
+  function handleSend() {
+    ask(input.trim());
+  }
+
+  function handleRetry() {
+    if (error) ask(error.question, { isRetry: true });
+  }
+
   function handleKeyDown(e) {
-    if (e.key === "Enter") handleSend();
+    // isComposing guards against Enter committing an IME candidate
+    // (Chinese, Japanese, Korean input) being read as "send".
+    if (e.key === "Enter" && !e.nativeEvent.isComposing) handleSend();
   }
 
   return (
@@ -92,7 +142,7 @@ export default function App() {
       </div>
 
       <main className="conversation">
-        {messages.length === 0 ? (
+        {messages.length === 0 && !loading && !error ? (
           <div className="empty-state">
             <h2>Ask about a university policy</h2>
             <p>Try “What are the rules on academic dress for graduation?”</p>
@@ -109,8 +159,30 @@ export default function App() {
             />
           ))
         )}
+
+        {/* PCOIS2-65: in-flight indicator. role="status" so screen readers
+            announce it without stealing focus. */}
         {loading && (
-          <Message role="bot" text="Searching the policy library…" />
+          <div className="thinking" role="status" aria-live="polite">
+            <span className="thinking__dots" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
+            <span className="thinking__label">Thinking…</span>
+          </div>
+        )}
+
+        {/* PCOIS2-65: recoverable error. Sits below the question rather
+            than replacing it, so the user can see what failed and resend
+            it without retyping. */}
+        {error && !loading && (
+          <div className="error-note" role="alert">
+            <p className="error-note__text">{error.message}</p>
+            <button className="error-note__retry" onClick={handleRetry}>
+              Try again
+            </button>
+          </div>
         )}
       </main>
 
@@ -122,10 +194,11 @@ export default function App() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+            disabled={loading}
             aria-label="Ask about a university policy"
           />
           <button className="composer__send" onClick={handleSend} disabled={loading}>
-            Send
+            {loading ? "Sending…" : "Send"}
           </button>
         </div>
       </div>
