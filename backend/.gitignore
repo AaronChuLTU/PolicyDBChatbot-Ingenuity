@@ -1,0 +1,7 @@
+# Audit log database (contains real user queries — never commit this)
+*.db
+
+# Python
+__pycache__/
+*.pyc
+.env
