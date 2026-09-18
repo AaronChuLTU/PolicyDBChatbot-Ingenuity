@@ -113,11 +113,14 @@ export async function askPolicyQuestion(question, { signal } = {}) {
   let res;
   try {
     res = await fetch(`${API_BASE}/ask`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question }),
-      signal: controller.signal,
-    });
+     method: "POST",
+     headers: {
+       "Content-Type": "application/json",
+       "X-API-Key": import.meta.env.VITE_API_KEY,
+     },
+     body: JSON.stringify({ question }),
+     signal: controller.signal,
+   });
   } catch (err) {
     // The caller cancelled deliberately — let that propagate untouched so
     // the UI can tell it apart from a real failure and stay quiet.

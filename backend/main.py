@@ -33,19 +33,23 @@ the project already uses):
                         (default: the Vite dev server,
                         http://localhost:5173,http://127.0.0.1:5173)
     PORT                default 8000 - matches policyApi.js's API_BASE default
+    API_KEY             shared secret the frontend must send as X-API-Key
 """
 import logging
 import os
-import subprocess                                            # NEW
+import subprocess
 import sys
 import threading
 import time
 from contextlib import asynccontextmanager
 
-from apscheduler.schedulers.background import BackgroundScheduler  # NEW
-from fastapi import Depends, FastAPI, HTTPException
+from apscheduler.schedulers.background import BackgroundScheduler
+from fastapi import Depends, FastAPI, Header, HTTPException, Request  # NEW: Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from slowapi import Limiter, _rate_limit_exceeded_handler               # NEW
+from slowapi.errors import RateLimitExceeded                            # NEW
+from slowapi.util import get_remote_address                             # NEW
 
 # generation/ and data-pipeline/ are plain script folders, not an
 # installed package, so put both on the path - same pattern
@@ -68,6 +72,11 @@ for _dir in ("generation", "data-pipeline"):
 from ollama_client import OllamaClient                      # noqa: E402
 from respond import answer_question                         # noqa: E402
 from query_logger import log_query                          # noqa: E402
+from dotenv import load_dotenv
+load_dotenv()
+
+import logging
+import os
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("policydb.api")
@@ -90,7 +99,27 @@ _lock = threading.Lock()
 _state = {"retriever": None, "client": None, "startup_error": None}
 
 
-# --- NEW: scheduled data refresh (real-time-ish policy updates) -----------
+# --- NEW: API key check -----------------------------------------------
+# A shared secret between frontend and backend, not per-user auth - stops
+# casual/automated abuse of the exposed endpoint. Since there's no login
+# system, this key ships inside the frontend's JS bundle and is visible
+# to anyone who opens the browser's Network tab - it's basic hardening,
+# not strong security.
+API_KEY = os.environ.get("API_KEY")
+
+
+def verify_api_key(x_api_key: str | None = Header(default=None, alias="X-API-Key")):
+    if API_KEY and x_api_key != API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+# --- end NEW ------------------------------------------------------------
+
+
+# --- NEW: rate limiting --------------------------------------------------
+limiter = Limiter(key_func=get_remote_address)
+# --- end NEW ------------------------------------------------------------
+
+
+# --- scheduled data refresh (real-time-ish policy updates) -----------
 # Re-runs the data-pipeline scripts periodically so policy_chunks reflects
 # any revisions to the live La Trobe policies. build_vector_db.py already
 # upserts on chunk_id, so re-running this on a schedule is safe - unchanged
@@ -117,7 +146,7 @@ def refresh_policy_data():
 # shortly before any demo or submission deadline.
 scheduler = BackgroundScheduler()
 scheduler.add_job(refresh_policy_data, "interval", hours=24)  # tune to whatever cadence you want
-# --- end NEW ----------------------------------------------------------------
+# --- end ----------------------------------------------------------------
 
 
 @asynccontextmanager
@@ -147,10 +176,10 @@ async def lifespan(app: FastAPI):
             _state["client"].host,
         )
 
-    scheduler.start()                                        
+    scheduler.start()
     logger.info("Startup complete.")
     yield
-    scheduler.shutdown()                                      
+    scheduler.shutdown()
     logger.info("Shutting down.")
 
 
@@ -161,6 +190,9 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+app.state.limiter = limiter                                              # NEW
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # NEW
 
 app.add_middleware(
     CORSMiddleware,
@@ -222,7 +254,14 @@ def get_client():
 # --- Routes ----------------------------------------------------------------
 
 @app.post("/ask", response_model=AskResponse)
-def ask(payload: AskRequest, retriever=Depends(get_retriever), client=Depends(get_client)):
+@limiter.limit("10/minute")                                              # NEW
+def ask(
+    request: Request,                                                    # NEW
+    payload: AskRequest,
+    retriever=Depends(get_retriever),
+    client=Depends(get_client),
+    _=Depends(verify_api_key),                                           # NEW
+):
     start = time.monotonic()
     with _lock:
         result = answer_question(payload.question, retriever, client)
