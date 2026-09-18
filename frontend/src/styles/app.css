@@ -181,3 +181,66 @@
   cursor: pointer;
 }
 .composer__send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* --- Thinking indicator (PCOIS2-65) --- */
+.thinking {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 15px;
+  align-self: flex-start;
+  width: fit-content;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  border-top-left-radius: 4px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+.thinking__dots { display: inline-flex; gap: 4px; }
+.thinking__dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: thinking-pulse 1.2s ease-in-out infinite;
+}
+.thinking__dots i:nth-child(2) { animation-delay: 0.15s; }
+.thinking__dots i:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes thinking-pulse {
+  0%, 60%, 100% { opacity: 0.25; }
+  30%           { opacity: 1; }
+}
+
+/* --- Error state (PCOIS2-65) --- */
+.error-note {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 11px 15px;
+  border-radius: var(--radius);
+  background: var(--error-bg);
+  color: var(--error-ink);
+  border: 1px solid var(--error-border);
+  font-size: 14px;
+}
+.error-note__text { margin: 0; flex: 1 1 240px; }
+.error-note__retry {
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  padding: 6px 14px;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.error-note__retry:hover { background: rgba(127, 127, 127, 0.12); }
+.error-note__retry:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}

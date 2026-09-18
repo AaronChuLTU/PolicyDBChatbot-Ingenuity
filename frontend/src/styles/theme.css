@@ -12,6 +12,9 @@
   --accent-ink: #e4f3ee;   /* tint for accent backgrounds */
   --warn-bg:    #fbf0d9;   /* disclaimer banner */
   --warn-ink:   #6b4a12;   /* disclaimer text */
+  --error-bg:     #fcecec; /* failed request notice */
+  --error-ink:    #8a2222;
+  --error-border: #e8c4c4;
   --mark-bg:    #0c2f52;   /* logo mark background */
   --mark-fg:    #ffffff;   /* logo mark text */
   --user-bg:    #0c2f52;   /* user message bubble */
@@ -35,6 +38,9 @@
   --accent-ink: #16302a;
   --warn-bg:    #3a2f13;
   --warn-ink:   #f0d69a;
+  --error-bg:     #3a1e1e;
+  --error-ink:    #f3b7b7;
+  --error-border: #5c2f2f;
   --mark-bg:    #3fbfa0;
   --mark-fg:    #10161d;
   --user-bg:    #2f6df0;   /* readable blue bubble on dark */
