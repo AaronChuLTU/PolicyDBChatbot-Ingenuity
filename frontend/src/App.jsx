@@ -127,7 +127,7 @@ export default function App() {
           </div>
           <div>
             <h1 className="app-header__title">Ingenuity</h1>
-            <p className="app-header__sub">Answers grounded in official university policy</p>
+            <p className="app-header__sub">La Trobe University Policy Chatbot</p>
           </div>
           <button
             className="app-header__toggle"
@@ -140,7 +140,7 @@ export default function App() {
       </header>
 
       <div className="disclaimer">
-        Guidance based only on published policy. For binding decisions, confirm with the relevant university contact.
+        Guidance based only on published La Trobe University policy. For binding decisions, confirm with the relevant university contact.
       </div>
 
       <main className="conversation">
