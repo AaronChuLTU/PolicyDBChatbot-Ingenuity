@@ -88,6 +88,7 @@
 .msg--user { justify-content: flex-end; }
 .msg__bubble {
   max-width: 88%;
+  width: fit-content;
   padding: 11px 15px;
   border-radius: var(--radius);
   font-size: 15px;
