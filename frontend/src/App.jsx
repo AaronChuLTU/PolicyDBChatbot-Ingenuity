@@ -18,14 +18,16 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   // { message, question } — question is kept so Try again can resend it.
   const [error, setError] = useState(null);
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
 
   // The in-flight request, so it can be cancelled on unmount.
   const requestRef = useRef(null);
 
-  // Apply the chosen theme to the <html> element so the CSS tokens switch.
+  // Apply the chosen theme to the <html> element so the CSS tokens switch,
+  // and persist it so it survives a page refresh.
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
   }, [theme]);
 
   // Don't leave a request running against an unmounted component.
