@@ -9,9 +9,7 @@ export default function Message({ role, text, citations, confidence, escalation 
   if (isUser) {
     return (
       <div className="msg msg--user">
-        <div>
-          <div className="msg__bubble">{text}</div>
-        </div>
+        <div className="msg__bubble">{text}</div>
       </div>
     );
   }
