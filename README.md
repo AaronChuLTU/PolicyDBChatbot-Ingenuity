@@ -68,6 +68,15 @@ Postgres and the frontend/backend could be hosted for free, but Ollama (the loca
 - **Input validation is pattern-based**, not exhaustive against adversarial prompt injection.
 - **No per-user authentication or role-based access** — the brief lists these as nice-to-have/optional, not implemented in this version.
 
+## Viewing Audit Logs
+
+Every `/ask` call is logged to `backend/policy_query_logs.db` (SQLite) — timestamp, question, retrieved chunks/citations, final answer, and metadata (confidence, status, response time). To inspect it, run from `backend/`:
+
+- `python view_logs.py` — last 20 entries
+- `python view_logs.py --limit 5` — last 5 entries
+
+This file is gitignored and never committed — it contains real user question text.
+
 ## Project documentation
 
 See `docs/` for retrieval and generation test results, and each subfolder's own README for module-specific detail.
