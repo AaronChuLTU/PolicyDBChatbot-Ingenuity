@@ -20,12 +20,19 @@
   --user-bg:    #0c2f52;   /* user message bubble */
   --user-fg:    #ffffff;
 
-  --font-display: Georgia, 'Times New Roman', serif;
+  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
   --font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  --radius: 12px;
+  --radius: 14px;
   --maxw: 90%;
   --maxw-cap: 1200px;
+  --tap-min: 44px;   /* minimum comfortable touch-target height (PCOIS2-68) */
+
+  /* Elevation: tinted toward --ink rather than flat black, so shadows read
+     as "this palette's shade" rather than a generic grey card shadow. */
+  --shadow-sm: 0 1px 2px rgba(12, 47, 82, 0.05), 0 1px 1px rgba(12, 47, 82, 0.04);
+  --shadow-md: 0 6px 20px rgba(12, 47, 82, 0.10), 0 2px 6px rgba(12, 47, 82, 0.06);
+  --focus-ring: 0 0 0 3px var(--accent-ink);
 }
 
 :root[data-theme="dark"] {
@@ -45,6 +52,12 @@
   --mark-fg:    #10161d;
   --user-bg:    #2f6df0;   /* readable blue bubble on dark */
   --user-fg:    #ffffff;
+
+  /* Dark surfaces need real black behind them to read as "raised" at
+     all — a navy-tinted shadow like the light theme's just disappears
+     against a background that's already dark. */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35), 0 1px 1px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 * { box-sizing: border-box; }

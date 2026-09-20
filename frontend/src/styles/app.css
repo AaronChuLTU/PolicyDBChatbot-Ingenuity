@@ -1,54 +1,72 @@
 /* app.css — layout and component styles for the page shell */
 
 .app {
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;   /* accounts for mobile browser chrome; ignored where unsupported */
   display: flex;
   flex-direction: column;
+  overflow: hidden;   /* the page itself never scrolls — .conversation does */
 }
 
 /* --- Header --- */
 .app-header {
-  border-bottom: 1px solid var(--border);
   background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
 }
 .app-header__inner {
   width: var(--maxw);
   max-width: var(--maxw-cap);
   margin: 0 auto;
-  padding: 18px 20px;
+  padding: 16px 20px;
   display: flex;
   align-items: center;
   gap: 12px;
 }
 .app-header__mark {
   width: 38px; height: 38px;
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--mark-bg);
   color: var(--mark-fg);
   display: grid;
   place-items: center;
-  font-family: var(--font-display);
-  font-size: 20px;
   flex-shrink: 0;
 }
-.app-header__toggle {
+.app-header__text { min-width: 0; }
+.app-header__actions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.app-header__new,
+.app-header__toggle {
   border: 1px solid var(--border);
   background: var(--paper);
   color: var(--ink);
-  border-radius: 8px;
-  padding: 7px 12px;
+  border-radius: 999px;
+  padding: 7px 16px;
   font-size: 13px;
   font-family: inherit;
   cursor: pointer;
-  flex-shrink: 0;
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  transition: border-color .15s ease, background .15s ease, transform .1s ease;
 }
+.app-header__new:hover,
 .app-header__toggle:hover { border-color: var(--accent); }
+.app-header__new:active,
+.app-header__toggle:active { transform: scale(0.96); }
+.app-header__new:focus-visible,
 .app-header__toggle:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
-.app-header__title { margin: 0; font-family: var(--font-display); font-size: 20px; font-weight: 600; }
+.app-header__title { margin: 0; font-family: var(--font-display); font-size: 21px; font-weight: 600; letter-spacing: -0.01em; }
 .app-header__sub { margin: 0; font-size: 13px; color: var(--ink-soft); }
 
 /* --- Disclaimer banner --- */
@@ -58,41 +76,118 @@
   font-size: 13px;
   padding: 10px 20px;
   text-align: center;
+  flex-shrink: 0;
 }
 
-/* --- Conversation area --- */
+/* --- Conversation area (the only scrollable region) --- */
 .conversation {
   flex: 1;
+  min-height: 0;   /* without this, a flex child won't shrink below its content
+                       size and the scroll below never kicks in */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.conversation::-webkit-scrollbar { width: 8px; }
+.conversation::-webkit-scrollbar-track { background: transparent; }
+.conversation::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+.conversation::-webkit-scrollbar-thumb:hover { background: var(--ink-soft); }
+
+.conversation__inner {
   width: var(--maxw);
   max-width: var(--maxw-cap);
   margin: 0 auto;
-  padding: 24px 20px;
+  padding: 24px 20px 12px;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
+
 .empty-state {
   margin: auto;
   text-align: center;
   color: var(--ink-soft);
-  max-width: 420px;
+  max-width: 440px;
+  padding: 0 8px;
+}
+.empty-state__mark {
+  width: 52px; height: 52px;
+  margin: 0 auto 18px;
+  border-radius: 14px;
+  background: var(--accent-ink);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
 }
 .empty-state h2 {
   font-family: var(--font-display);
   color: var(--ink);
   font-weight: 600;
+  font-size: 23px;
+  margin: 0 0 8px;
 }
+.empty-state p { margin: 0 0 24px; font-size: 14.5px; }
+.empty-state__prompts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+.empty-state__prompt {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: border-color .15s ease, box-shadow .15s ease, transform .1s ease;
+}
+.empty-state__prompt:hover { border-color: var(--accent); box-shadow: var(--shadow-md); }
+.empty-state__prompt:active { transform: scale(0.98); }
+.empty-state__prompt:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* --- Messages --- */
-.msg { display: flex; }
+.msg { display: flex; animation: msg-in 0.3s ease-out; }
 .msg--user { justify-content: flex-end; }
+.msg--bot { align-items: flex-start; gap: 10px; }
+
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.msg__avatar {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  margin-top: 2px;
+  border-radius: 8px;
+  background: var(--mark-bg);
+  color: var(--mark-fg);
+  display: grid;
+  place-items: center;
+}
+.msg__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 88%;
+  min-width: 0;
+}
+
 .msg__bubble {
   display: inline-block;
   max-width: 88%;
-  padding: 11px 15px;
+  padding: 12px 16px;
   border-radius: var(--radius);
   font-size: 15px;
+  overflow-wrap: break-word;
 }
+.msg__content .msg__bubble { max-width: 100%; }
 .msg--user .msg__bubble {
   background: var(--user-bg);
   color: var(--user-fg);
@@ -102,101 +197,78 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-top-left-radius: 4px;
+  box-shadow: var(--shadow-sm);
 }
-.msg__sources {
+/* Sources + low-confidence flag as compact tags in one wrapped row,
+   closer to the team's wireframe than the old full-width detail boxes.
+   Escalation stays a full block below (see .msg__escalation) — its text
+   is a required instruction, not a label, so it isn't safe to compact
+   the same way without hiding what it says. */
+.msg__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
   margin-top: 8px;
+}
+.msg__tags-label { font-size: 12px; color: var(--ink-soft); }
+.msg__tag {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  overflow-wrap: break-word;
+  transition: background .15s ease, border-color .15s ease;
+}
+.msg__tag--source {
   border: 1px solid var(--accent);
-  border-radius: 8px;
-  padding: 8px 12px;
   background: var(--accent-ink);
-  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
 }
-.msg__sources-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--ink-soft);
-  margin: 0 0 4px;
+.msg__tag--source:hover { text-decoration: underline; }
+.msg__tag--source:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
-.msg__source-link { color: var(--accent); text-decoration: none; font-weight: 500; }
-.msg__source-link:hover { text-decoration: underline; }
-
-/* Low-confidence warning */
-.msg__warning {
-  margin-top: 8px;
-  padding: 8px 12px;
-  border-radius: 8px;
+.msg__tag--warning {
+  border: 1px solid var(--border);
   background: var(--warn-bg);
   color: var(--warn-ink);
-  font-size: 13px;
-  border: 1px solid var(--border);
 }
 
 /* Escalation message */
 .msg__escalation {
   margin-top: 8px;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 9px 13px;
+  border-radius: 10px;
   background: var(--surface);
   border: 1px dashed var(--accent);
   color: var(--ink-soft);
   font-size: 13px;
+  width: 100%;
 }
-
-/* --- Composer --- */
-.composer {
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-}
-.composer__inner {
-  width: var(--maxw);
-  max-width: var(--maxw-cap);
-  margin: 0 auto;
-  padding: 14px 20px;
-  display: flex;
-  gap: 10px;
-}
-.composer__input {
-  flex: 1;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  padding: 11px 14px;
-  font-size: 15px;
-  font-family: inherit;
-  background: var(--paper);
-  color: var(--ink);
-}
-.composer__input:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-  border-color: transparent;
-}
-.composer__send {
-  border: none;
-  border-radius: 9px;
-  padding: 0 20px;
-  background: var(--accent);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-}
-.composer__send:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* --- Thinking indicator (PCOIS2-65) --- */
 .thinking {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 11px 15px;
+  padding: 12px 16px;
   align-self: flex-start;
   width: fit-content;
+  margin-left: 38px;   /* lines up with the avatar column above it */
   border: 1px solid var(--border);
   border-radius: var(--radius);
   border-top-left-radius: 4px;
   background: var(--surface);
   color: var(--ink-soft);
   font-size: 15px;
+  box-shadow: var(--shadow-sm);
+  animation: msg-in 0.3s ease-out;
 }
 .thinking__dots { display: inline-flex; gap: 4px; }
 .thinking__dots i {
@@ -221,27 +293,132 @@
   justify-content: space-between;
   gap: 14px;
   flex-wrap: wrap;
-  padding: 11px 15px;
+  padding: 12px 16px;
   border-radius: var(--radius);
   background: var(--error-bg);
   color: var(--error-ink);
   border: 1px solid var(--error-border);
   font-size: 14px;
+  box-shadow: var(--shadow-sm);
+  animation: msg-in 0.3s ease-out;
 }
 .error-note__text { margin: 0; flex: 1 1 240px; }
 .error-note__retry {
   border: 1px solid currentColor;
-  border-radius: 8px;
-  padding: 6px 14px;
+  border-radius: 999px;
+  padding: 6px 16px;
   background: transparent;
   color: inherit;
   font-size: 14px;
   font-family: inherit;
   font-weight: 500;
   cursor: pointer;
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  transition: background .15s ease, transform .1s ease;
 }
 .error-note__retry:hover { background: rgba(127, 127, 127, 0.12); }
+.error-note__retry:active { transform: scale(0.96); }
 .error-note__retry:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 2px;
+}
+
+/* --- Composer --- */
+.composer {
+  flex-shrink: 0;
+  background: var(--paper);
+  padding: 10px 0 16px;
+}
+.composer__inner {
+  width: var(--maxw);
+  max-width: var(--maxw-cap);
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+}
+.composer__capsule {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 6px 6px 20px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.composer__capsule:focus-within {
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring), var(--shadow-sm);
+}
+.composer__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 10px 0;
+  /* 16px, not 15px: anything smaller makes iOS Safari zoom the page in
+     on focus, which then has to be manually zoomed back out. */
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--ink);
+}
+.composer__input:focus { outline: none; }
+.composer__input::placeholder { color: var(--ink-soft); }
+.composer__send {
+  flex-shrink: 0;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform .1s ease, opacity .15s ease;
+}
+.composer__send:hover:not(:disabled) { transform: scale(1.06); }
+.composer__send:active:not(:disabled) { transform: scale(0.92); }
+.composer__send:disabled { opacity: 0.45; cursor: not-allowed; }
+.composer__send:focus-visible {
+  /* Outlined in --ink rather than --accent: the button's own background
+     IS --accent, so an --accent outline would barely show against it. */
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.composer__spinner {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* --- Mobile (PCOIS2-68) --- */
+@media (max-width: 640px) {
+  .app-header__inner,
+  .conversation__inner,
+  .composer__inner {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .app-header__inner {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+  .app-header__actions { flex-basis: 100%; margin-left: 0; justify-content: flex-end; }
+  .conversation__inner { padding-top: 18px; padding-bottom: 8px; gap: 14px; }
+  .msg__bubble { max-width: 92%; }
+  .msg__content { max-width: 92%; }
+  .thinking { margin-left: 0; }
+  .composer { padding: 8px 0 12px; }
+  .composer__capsule { padding-left: 16px; gap: 4px; }
 }
