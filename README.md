@@ -45,6 +45,8 @@ The chatbot is demonstrated via a public URL without requiring anyone else to ru
 Postgres and the frontend/backend could be hosted for free, but Ollama (the local LLM server) needs more RAM/CPU than free hosting tiers provide. With no project budget, the backend and Ollama run on a team member's machine, tunneled to a public URL for the duration of the demo. This is an accepted scope decision, not an oversight.
 
 ### Required setup
+**Quickest option:** if Docker, Python, Node, `cloudflared`, and Ollama are already installed, double-click `start-demo.bat` in the repo root — it automates every step below, checks the database has data (offering to populate it if not), and opens the working demo link automatically. The manual steps are documented below for first-time setup, troubleshooting, or if the script isn't available.
+
 1. Start Docker Postgres: `docker start policydb-pg`
 2. Confirm Ollama is running: `ollama list` should show `qwen3` (Windows runs it as a background service automatically)
 3. Backend: `cd backend && python main.py`
