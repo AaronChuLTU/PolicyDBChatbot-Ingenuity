@@ -11,6 +11,7 @@ import Message from "./components/Message.jsx";
 import { askPolicyQuestion } from "./api/policyApi.js";
 import "./styles/theme.css";
 import "./styles/app.css";
+import InfoButton from "./components/InfoButton.jsx";
 
 // A few real, varied policy questions so the empty state gives new users
 // somewhere to start instead of a blank box. Clicking one sends it
@@ -154,9 +155,6 @@ export default function App() {
                 d="M4 5.5C4 4.67 4.67 4 5.5 4h13c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5H9l-4 3.5V16H5.5C4.67 16 4 15.33 4 14.5v-9Z"
                 fill="currentColor"
               />
-              <circle cx="9" cy="10" r="1.15" fill="var(--mark-bg)" />
-              <circle cx="12" cy="10" r="1.15" fill="var(--mark-bg)" />
-              <circle cx="15" cy="10" r="1.15" fill="var(--mark-bg)" />
             </svg>
           </div>
           <div className="app-header__text">
@@ -164,6 +162,7 @@ export default function App() {
             <p className="app-header__sub">La Trobe University Policy Chatbot</p>
           </div>
           <div className="app-header__actions">
+            <InfoButton />
             {messages.length > 0 && (
               <button className="app-header__new" onClick={handleNewConversation}>
                 + New chat
