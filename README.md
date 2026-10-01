@@ -32,7 +32,7 @@ Each folder has its own README with setup specifics; this file covers the projec
 
 1. **Postgres + pgvector:** `docker run --name policydb-pg -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d ankane/pgvector`
 2. **Populate the database** — in `data-pipeline/`: `pip install -r requirements.txt`, then run `scrape_policies.py`, `clean_and_chunk.py`, `build_vector_db.py` in order.
-   - **Quickest path:** grab `policy_search.html` and `policy_index.json` from [TEAM DRIVE LINK HERE] and place both in `data-pipeline/data/` before running the scripts above — this skips the manual steps below and gets you the full 140-policy corpus straight away.
+   - **Quickest path:** grab `policy_search.html` and `policy_index.json` from the [team OneDrive folder](https://latrobeuni-my.sharepoint.com/:f:/g/personal/22298193_students_ltu_edu_au/IgAbg0PrjapxSJ99s_H67F--AX63vQPMJeY4iLvnkyiGTNI?e=B44Cxn) and place both in `data-pipeline/data/` before running the scripts above — this skips the manual steps below and gets you the full 140-policy corpus straight away.
    - **Manual alternative** (if you'd rather not depend on the shared files, or need to refresh the policy roster yourself):
      1. Open La Trobe's Policy Library website and run its search
      2. Filter: **Document Type = Policy**
