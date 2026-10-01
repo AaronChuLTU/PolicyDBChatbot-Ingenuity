@@ -31,7 +31,15 @@ Each folder has its own README with setup specifics; this file covers the projec
 ## Local development setup
 
 1. **Postgres + pgvector:** `docker run --name policydb-pg -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d ankane/pgvector`
-2. **Populate the database** — in `data-pipeline/`: `pip install -r requirements.txt`, then run `scrape_policies.py`, `clean_and_chunk.py`, `build_vector_db.py` in order (see `data-pipeline/README.md` for the full policy discovery process)
+2. **Populate the database** — in `data-pipeline/`: `pip install -r requirements.txt`, then run `scrape_policies.py`, `clean_and_chunk.py`, `build_vector_db.py` in order.
+   - **Quickest path:** grab `policy_search.html` and `policy_index.json` from [TEAM DRIVE LINK HERE] and place both in `data-pipeline/data/` before running the scripts above — this skips the manual steps below and gets you the full 140-policy corpus straight away.
+   - **Manual alternative** (if you'd rather not depend on the shared files, or need to refresh the policy roster yourself):
+     1. Open La Trobe's Policy Library website and run its search
+     2. Filter: **Document Type = Policy**
+     3. Make sure **all results are showing**, not paginated (use "show all" or increase results-per-page if the default view is limited)
+     4. **Ctrl+S** to save the page, choosing **"Webpage, HTML only"** as the file type (not "Webpage, Complete")
+     5. Save it as `policy_search.html` into `data-pipeline/data/`
+     6. Run: `python discover_policies.py --file data/policy_search.html` — this writes `data/policy_index.json`, filtering out anything marked `(Expired)` in the listing
 3. **Ollama:** install from ollama.com, then `ollama pull qwen3`
 4. **Backend:** in `backend/`, `pip install -r requirements.txt`, copy `.env.example` to `.env` and set `API_KEY`, then `python main.py`
 5. **Frontend:** in `frontend/`, `npm install`, copy `.env.example` to `.env` (set `VITE_API_KEY` to match the backend), then `npm run dev`
