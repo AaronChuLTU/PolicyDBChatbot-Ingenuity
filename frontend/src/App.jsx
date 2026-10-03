@@ -19,7 +19,7 @@ import InfoButton from "./components/InfoButton.jsx";
 const EXAMPLE_PROMPTS = [
   "What are the rules on academic dress for graduation?",
   "How many times can I fail the same subject?",
-  "What happens if I miss an assessment deadline?",
+  "What are the rules on source materials?",
 ];
 
 export default function App() {
