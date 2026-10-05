@@ -11,7 +11,14 @@ top of it: status codes, response-schema conformance, and error handling.
     pip install fastapi uvicorn httpx   (httpx: TestClient dependency only)
     python test_api.py
 """
+import os
 import sys
+
+# main.py reads API_KEY when it is imported (from the environment, or from
+# backend/.env via load_dotenv). Set a known test key first so these tests
+# behave the same on every machine, whatever a local .env contains.
+TEST_API_KEY = "test-api-key"
+os.environ["API_KEY"] = TEST_API_KEY
 
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
@@ -66,7 +73,8 @@ def use(retriever_hits, reply):
     app.dependency_overrides[get_client] = lambda: StubClient(reply)
 
 
-client = TestClient(app)
+client = TestClient(app, headers={"X-API-Key": TEST_API_KEY})  # authorised
+anon = TestClient(app)                                         # sends no key
 
 # 1. Success path: 200 + a schema-conformant, fully-populated body
 use(GOOD_HIT, "Academic dress must be worn as prescribed for the award.")
@@ -90,6 +98,13 @@ use(GOOD_HIT, "NO_ANSWER_IN_POLICY")
 resp = client.post("/ask", json={"question": "Who is entitled to wear a doctoral gown?"})
 check("refusal -> low_confidence", resp.json().get("status") == "low_confidence", resp.json())
 
+# 3b. API key enforcement: /ask must reject a missing or wrong key
+use(GOOD_HIT, "Academic dress must be worn as prescribed for the award.")
+q = {"question": "What academic dress do graduands wear?"}
+check("no API key -> 401", anon.post("/ask", json=q).status_code == 401)
+check("wrong API key -> 401",
+      anon.post("/ask", json=q, headers={"X-API-Key": "wrong-key"}).status_code == 401)
+
 # 4. Malformed request -> 422, not a 500
 resp = client.post("/ask", json={})
 check("missing question -> 422", resp.status_code == 422, resp.text)
@@ -109,6 +124,8 @@ resp = client.get("/health")
 check("health -> 200", resp.status_code == 200, resp.text)
 check("health -> has status/database/ollama",
       {"status", "database", "ollama"} <= resp.json().keys(), resp.json())
+
+check("health -> no API key needed", anon.get("/health").status_code == 200)
 
 app.dependency_overrides.clear()
 
