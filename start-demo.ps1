@@ -127,8 +127,31 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$backendDir';
 Write-Host "Starting frontend..." -ForegroundColor Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$frontendDir'; npm run dev" -WindowStyle Normal
 
-Write-Host "`nGiving the backend and frontend a moment to start..." -ForegroundColor Yellow
-Start-Sleep -Seconds 8
+Write-Host "`nWaiting for the backend to finish starting (loading models can take a minute)..." -ForegroundColor Yellow
+$backendReady = $false
+$timeoutSeconds = 150
+$elapsed = 0
+while ($elapsed -lt $timeoutSeconds) {
+    try {
+        $health = Invoke-WebRequest -Uri "$backendUrl/health" -TimeoutSec 3 -UseBasicParsing -ErrorAction Stop
+        if ($health.StatusCode -eq 200) {
+            $backendReady = $true
+            break
+        }
+    } catch {
+        # not ready yet - keep waiting
+    }
+    Start-Sleep -Seconds 3
+    $elapsed += 3
+}
+if ($backendReady) {
+    Write-Host "Backend is ready." -ForegroundColor Green
+} else {
+    Write-Host "Backend did not respond within $timeoutSeconds seconds - check its window for errors. Opening the demo anyway." -ForegroundColor Red
+}
+
+Write-Host "Giving the frontend a moment to start..." -ForegroundColor Yellow
+Start-Sleep -Seconds 5
 
 # 10. Open the demo in your browser
 Write-Host "`n=== Demo is live ===" -ForegroundColor Cyan
